@@ -1,6 +1,7 @@
 import pandas as pd
 import time
 from twitter_mysql import TwitterAPI
+from twitter_redis_strat2 import TwitterAPI as TwitterAPIRedis
 from twitter_objects import Tweet, Follow, User
 # Load tweet.csv 
 
@@ -23,6 +24,36 @@ def load_and_profile_tweets():
     api.dbu.close()
     return time_per_10k
 
+def load_and_profile_tweets_redis_strat2():
+    api = TwitterAPIRedis()
+    tweets = pd.read_csv('data/tweet.csv')
+    start = time.time_ns()
+    time_per_10k = []
+    for i in range(len(tweets)):
+        if i % 10 ** 4 == 0:
+            finish = time.time_ns()
+            completion_time = (finish - start) / 10 ** 9
+            time_per_10k.append(completion_time)
+            start = time.time_ns()
+        tweet = Tweet(int(tweets['USER_ID'][i]), tweets['TWEET_TEXT'][i])
+        api.post_tweet(tweet)
+    return time_per_10k
+
+def get_timelines_redis_strat2():
+    api = TwitterAPIRedis()
+    start = time.time_ns()
+    time_elapsed = 0
+    total_timelines = 0
+    while time_elapsed < 60:
+        user_id = api.get_random_user_id()
+        api.get_timeline(user_id)
+        total_timelines += 1
+        finish = time.time_ns()
+        time_elapsed = (finish - start) / 10 ** 9
+    return total_timelines
+
+
+
 def get_timelines():
     api = TwitterAPI('pySQL', 'Python123', 'test_twitter')
     start = time.time_ns()
@@ -39,11 +70,23 @@ def get_timelines():
 
 def main():
     # Load and profile tweets
-    time_per_10k = load_and_profile_tweets()
-    print(f'Load and profile tweets: {time_per_10k}')
+    #time_per_10k = load_and_profile_tweets()
+    #print(f'Load and profile tweets: {time_per_10k}')
     # Get timelines
-    total_timelines = get_timelines()
-    print(f'Total timelines: {total_timelines}')
+    #total_timelines = get_timelines()
+    #print(f'Total timelines: {total_timelines}')
+
+    # Load follower relationships redis strat2
+    api = TwitterAPIRedis()
+    api.load_twitter_redis()
+    # Load and profile tweets redis strat2
+    time_per_10k = load_and_profile_tweets_redis_strat2()
+    print(f'Load and profile tweets redis strat2: {time_per_10k}')
+    # Get timelines redis strat2
+    #total_timelines = get_timelines_redis_strat2()
+    #print(f'Total timelines redis strat2: {total_timelines}')
+
+
 
 if __name__ == '__main__':
     main()
