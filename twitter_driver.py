@@ -37,22 +37,19 @@ def load_and_profile_tweets_redis_strat2():
             start = time.time_ns()
         tweet = Tweet(int(tweets['USER_ID'][i]), tweets['TWEET_TEXT'][i])
         api.post_tweet(tweet)
-    return time_per_10k
+    # Find average of time_per_10k
+    average = sum(time_per_10k) / len(time_per_10k)
+    return 10000 / average
 
 def get_timelines_redis_strat2():
     api = TwitterAPIRedis()
+    user_ids = api.get_random_user_id(50000)
     start = time.time_ns()
-    time_elapsed = 0
-    total_timelines = 0
-    while time_elapsed < 60:
-        user_id = api.get_random_user_id()
-        api.get_timeline(user_id)
-        total_timelines += 1
-        finish = time.time_ns()
-        time_elapsed = (finish - start) / 10 ** 9
-    return total_timelines
-
-
+    for id in user_ids:
+        tl = api.get_timeline(id)
+    finish = time.time_ns()
+    time_elapsed = (finish - start) / 10 ** 9
+    return 50000 / time_elapsed
 
 def get_timelines():
     api = TwitterAPI('pySQL', 'Python123', 'test_twitter')
@@ -83,8 +80,8 @@ def main():
     time_per_10k = load_and_profile_tweets_redis_strat2()
     print(f'Load and profile tweets redis strat2: {time_per_10k}')
     # Get timelines redis strat2
-    #total_timelines = get_timelines_redis_strat2()
-    #print(f'Total timelines redis strat2: {total_timelines}')
+    total_timelines = get_timelines_redis_strat2()
+    print(f'Total timelines redis strat2: {total_timelines}')
 
 
 
