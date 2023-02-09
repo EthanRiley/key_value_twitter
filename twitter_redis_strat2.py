@@ -9,10 +9,10 @@ class TwitterAPI:
         self.r = redis.Redis(host=host, port=port, db=db, decode_responses=True)
 
     def post_tweet(self, tweet):
-        tweet_id = str(self.r.incr('tweetID'))
-        user_id = str(tweet.user_id)
-        tweet_text = str(tweet.tweet_text)
-        tweet_ts = time.time_ns()
+        tweet_id = self.r.incr('tweetID')
+        user_id = tweet.user_id
+        tweet_text = tweet.tweet_text
+        tweet_ts = tweet.tweet_ts
         self.r.set(f"tweet:{tweet_id}", f"{user_id}:{tweet_ts}:{tweet_text}")
         for follower in self.r.lrange(f"followers:{user_id}", 0, -1):
             timeline_str = f"timeline:{follower}"
@@ -24,7 +24,7 @@ class TwitterAPI:
         for id in ids:
             tweet_info = self.r.get(f"tweet:{id}")
             tweet_parts = tweet_info.split(':')
-            tweets.append(Tweet(user_id=tweet_parts[0], tweet_text=tweet_parts[2]))
+            tweets.append(Tweet(user_id=tweet_parts[0], tweet_text=tweet_parts[2], tweet_ts=tweet_parts[1]))
         return tweets
         
 

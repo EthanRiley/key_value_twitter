@@ -1,8 +1,10 @@
+import time
 class Tweet:
     
-    def __init__(self, user_id, tweet_text):
+    def __init__(self, user_id, tweet_text, tweet_ts=time.time_ns()):
         self.user_id = user_id
         self.tweet_text = tweet_text
+        self.tweet_ts = tweet_ts
 
     def __str__(self):
         return f"Tweet: {self.tweet_text} by {self.user_id} on {self.tweet_ts}"
