@@ -22,7 +22,7 @@ class TwitterAPI:
         for followee in following:
             followee_tweets = self.r.lrange(f"tweets:{followee}", -10, -1)
             for tweet_id in followee_tweets:
-                tweet = self.api.r.get(f"tweet:{tweet_id}")
+                tweet = self.r.get(f"tweet:{tweet_id}")
                 tweet_parts = tweet.split(':')
                 tweet_dict = {'tweet_user_id': tweet_parts[0], 'tweet_ts': tweet_parts[1], 'tweet_text': tweet_parts[2]}
                 tweets.append(tweet_dict)

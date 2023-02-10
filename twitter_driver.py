@@ -102,19 +102,20 @@ def main():
     #print(f'Total timelines: {total_timelines}')
 
     # Load follower relationships redis strat2
-    api = TwitterAPIRedis()
-    api.load_twitter_redis()
+
     # Load and profile tweets redis strat 1
 
-
+    api = TwitterAPIRedisStrat1()
+    api.load_twitter_redis()
     time_per_10k = load_and_profile_tweets_func(TwitterAPIRedisStrat1)
     print(f'Load and profile tweets average time redis strat 1: {time_per_10k}')
     # Get timelines redis strat2
     total_timelines = get_timelines_func(TwitterAPIRedisStrat1)
     print(f'Total timelines average time redis strat 1: {total_timelines}')
 
+    
+    api = TwitterAPIRedis()
     api.load_twitter_redis()
-
     # Load and profile tweets redis strat 2
     time_per_10k = load_and_profile_tweets_func(TwitterAPIRedis)
     print(f'Load and profile tweets average time redis strat 2: {time_per_10k}')
